@@ -1,2 +1,2 @@
-- ENT.
-    - the ent framework is an alternative to GORM for working with databases. 
+# ENT-Framework
+Employee Management System Backend Implemented By Go using ENT Framework
