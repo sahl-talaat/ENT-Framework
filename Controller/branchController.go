@@ -1,89 +1,80 @@
 package controller
 
 import (
-	"encoding/json"
-	service "entdemo/Service"
-	utils "entdemo/Utils"
+	models "entdemo/Model"
 	"entdemo/ent"
-	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
-func BranchGetByIDController(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+func GetBranch(c *gin.Context) {
+	branchIDStr := c.Param("id")
+	branchID, err := strconv.Atoi(branchIDStr)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid branch ID"})
 		return
 	}
-
-	employee, err := service.NewBranchOps(r.Context()).BranchGetByID(id)
+	branch, err := models.GetBranch(c, branchID)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
+	} else {
+		c.JSON(http.StatusOK, branch)
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, employee)
 }
 
-func BranchCreateController(w http.ResponseWriter, r *http.Request) {
-
-	var newBranch ent.Branch
-	err := json.NewDecoder(r.Body).Decode(&newBranch)
+func CreateBranch(c *gin.Context) {
+	var branch ent.Branch
+	err := c.BindJSON(&branch)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, branch)
 		return
 	}
-
-	createdBranch, err := service.NewBranchOps(r.Context()).BranchCreate(newBranch)
+	err = models.CreateBranch(c, &branch)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusNotFound, err.Error())
+		return
+	} else {
+		c.JSON(http.StatusCreated, gin.H{"message": branch.Name + " created successfully"})
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, createdBranch)
 }
 
-func BranchUpdateController(w http.ResponseWriter, r *http.Request) {
-
-	var newBranchData ent.Branch
-	err := json.NewDecoder(r.Body).Decode(&newBranchData)
+func UpdateBranch(c *gin.Context) {
+	branchIDStr := c.Param("id")
+	branchID, err := strconv.Atoi(branchIDStr)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid branch ID"})
 		return
 	}
-
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+	var branch ent.Branch
+	err = c.BindJSON(&branch)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, branch)
 		return
 	}
-	newBranchData.ID = id
-
-	updatedBranch, err := service.NewBranchOps(r.Context()).BranchUpdate(newBranchData)
+	err = models.UpdateBranch(c, &branch, branchID)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": branchIDStr + " updated successfully"})
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, updatedBranch)
 }
 
-func BranchDeleteController(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+func DeleteBranch(c *gin.Context) {
+	branchIDStr := c.Param("id")
+	branchID, err := strconv.Atoi(branchIDStr)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid branch ID"})
 		return
 	}
-
-	deletedID, err := service.NewBranchOps(r.Context()).BranchDelete(id)
+	err = models.DeleteBranch(c, branchID)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": branchIDStr + " deleted successfully"})
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, deletedID)
 }

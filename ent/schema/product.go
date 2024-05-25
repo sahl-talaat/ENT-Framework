@@ -16,12 +16,7 @@ type Product struct {
 func (Product) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
-		field.String("description"),
-		field.Time("nillable_created_at").Default(time.Now).Nillable(),
+		field.Float("price"),
+		field.Time("nillable_created_at").Default(time.Now),
 	}
-}
-
-// Edges of the Product.
-func (Product) Edges() []ent.Edge {
-	return nil
 }

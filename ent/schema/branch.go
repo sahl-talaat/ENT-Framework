@@ -1,7 +1,10 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -13,13 +16,17 @@ type Branch struct {
 // Fields of the Branch.
 func (Branch) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").Default("ShopName").Comment("nickname"),
+		field.String("name"),
 		field.String("address").Unique(),
-		field.Time("opening_date"),
+		field.Time("opening_date").Default(time.Now),
 	}
 }
 
 // Edges of the Branch.
 func (Branch) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.To("employees", Employee.Type),
+		edge.To("orders", Order.Type),
+		edge.To("sales", Sale.Type),
+	}
 }
