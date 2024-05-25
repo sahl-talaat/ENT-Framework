@@ -1,3 +1,0 @@
-
-- ENT.
-    - the ent framework is an alternative to GORM for working with databases. 
