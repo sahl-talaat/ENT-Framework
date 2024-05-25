@@ -1,89 +1,80 @@
 package controller
 
 import (
-	"encoding/json"
-	service "entdemo/Service"
-	utils "entdemo/Utils"
+	models "entdemo/Model"
 	"entdemo/ent"
-	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
-func DepartmentGetByIDController(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+func GetDepartment(c *gin.Context) {
+	departmentIDStr := c.Param("id")
+	departmentID, err := strconv.Atoi(departmentIDStr)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid department ID"})
 		return
 	}
-
-	employee, err := service.NewDepartmentOps(r.Context()).DepartmentGetByID(id)
+	department, err := models.GetDepartment(c, departmentID)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusNotFound, err.Error())
 		return
+	} else {
+		c.JSON(http.StatusOK, department)
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, employee)
 }
 
-func DepartmentCreateController(w http.ResponseWriter, r *http.Request) {
-
-	var newDepartment ent.Department
-	err := json.NewDecoder(r.Body).Decode(&newDepartment)
+func CreateDepartment(c *gin.Context) {
+	var department ent.Department
+	err := c.BindJSON(&department)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, department)
 		return
 	}
-
-	createdDepartment, err := service.NewDepartmentOps(r.Context()).DepartmentCreate(newDepartment)
+	err = models.CreateDepartment(c, &department)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusNotFound, err.Error())
+		return
+	} else {
+		c.JSON(http.StatusCreated, gin.H{"message": department.Name + " created successfully"})
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, createdDepartment)
 }
 
-func DepartmentUpdateController(w http.ResponseWriter, r *http.Request) {
-
-	var newDepartmentData ent.Department
-	err := json.NewDecoder(r.Body).Decode(&newDepartmentData)
+func UpdateDepartment(c *gin.Context) {
+	departmentIDStr := c.Param("id")
+	departmentID, err := strconv.Atoi(departmentIDStr)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid department ID"})
 		return
 	}
-
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+	var department ent.Department
+	err = c.BindJSON(&department)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, department)
 		return
 	}
-	newDepartmentData.ID = id
-
-	updatedDepartment, err := service.NewDepartmentOps(r.Context()).DepartmentUpdate(newDepartmentData)
+	err = models.UpdateDepartment(c, &department, departmentID)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": departmentIDStr + " updated successfully"})
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, updatedDepartment)
 }
 
-func DepartmentDeleteController(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+func DeleteDepartment(c *gin.Context) {
+	departmentIDStr := c.Param("id")
+	departmentID, err := strconv.Atoi(departmentIDStr)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid department ID"})
 		return
 	}
-
-	deletedID, err := service.NewDepartmentOps(r.Context()).DepartmentDelete(id)
+	err = models.DeleteDepartment(c, departmentID)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": departmentIDStr + " deleted successfully"})
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, deletedID)
 }

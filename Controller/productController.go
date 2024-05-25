@@ -1,89 +1,80 @@
 package controller
 
 import (
-	"encoding/json"
-	service "entdemo/Service"
-	utils "entdemo/Utils"
+	models "entdemo/Model"
 	"entdemo/ent"
-	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
-func ProductGetByIDController(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+func GetProduct(c *gin.Context) {
+	productIDStr := c.Param("id")
+	productID, err := strconv.Atoi(productIDStr)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
 		return
 	}
-
-	employee, err := service.NewProductOps(r.Context()).ProductGetByID(id)
+	product, err := models.GetProduct(c, productID)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusNotFound, err.Error())
 		return
+	} else {
+		c.JSON(http.StatusOK, product)
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, employee)
 }
 
-func ProductCreateController(w http.ResponseWriter, r *http.Request) {
-
-	var newProduct ent.Product
-	err := json.NewDecoder(r.Body).Decode(&newProduct)
+func CreateProduct(c *gin.Context) {
+	var product ent.Product
+	err := c.BindJSON(&product)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, product)
 		return
 	}
-
-	createdProduct, err := service.NewProductOps(r.Context()).ProductCreate(newProduct)
+	err = models.CreateProduct(c, &product)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusNotFound, err.Error())
+		return
+	} else {
+		c.JSON(http.StatusCreated, gin.H{"message": product.Name + " created successfully"})
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, createdProduct)
 }
 
-func ProductUpdateController(w http.ResponseWriter, r *http.Request) {
-
-	var newProductData ent.Product
-	err := json.NewDecoder(r.Body).Decode(&newProductData)
+func UpdateProduct(c *gin.Context) {
+	productIDStr := c.Param("id")
+	productID, err := strconv.Atoi(productIDStr)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
 		return
 	}
-
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+	var product ent.Product
+	err = c.BindJSON(&product)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, product)
 		return
 	}
-	newProductData.ID = id
-
-	updatedProduct, err := service.NewProductOps(r.Context()).ProductUpdate(newProductData)
+	err = models.UpdateProduct(c, &product, productID)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": productIDStr + " updated successfully"})
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, updatedProduct)
 }
 
-func ProductDeleteController(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+func DeleteProduct(c *gin.Context) {
+	productIDStr := c.Param("id")
+	productID, err := strconv.Atoi(productIDStr)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
 		return
 	}
-
-	deletedID, err := service.NewProductOps(r.Context()).ProductDelete(id)
+	err = models.DeleteProduct(c, productID)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": productIDStr + " deleted successfully"})
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, deletedID)
 }

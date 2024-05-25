@@ -1,90 +1,92 @@
 package controller
 
 import (
-	"encoding/json"
-	service "entdemo/Service"
-	utils "entdemo/Utils"
-	"entdemo/ent"
+	models "entdemo/Model"
 	"net/http"
 	"strconv"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
-func EmployeeGetByIDController(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+func GetEmployee(c *gin.Context) {
+	employeeIDStr := c.Param("id")
+	employeeID, err := strconv.Atoi(employeeIDStr)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid employee ID"})
 		return
 	}
-
-	employee, err := service.NewEmployeeOps(r.Context()).EmployeeGetByID(id)
+	employee, err := models.GetEmployee(c, employeeID)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusNotFound, err.Error())
 		return
+	} else {
+		c.JSON(http.StatusOK, employee)
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, employee)
 }
 
-func EmployeeCreateController(w http.ResponseWriter, r *http.Request) {
-
-	var newEmployee ent.Employee
-	err := json.NewDecoder(r.Body).Decode(&newEmployee)
+func CreateEmployee(c *gin.Context) {
+	//var employee ent.Employee
+	var employee struct {
+		Name         string  `json:"name"`
+		Age          int     `json:"age"`
+		Salary       float64 `json:"salary"`
+		DepartmentID int     `json:"department_id"`
+		BranchID     int     `json:"branch_id"`
+	}
+	err := c.BindJSON(&employee)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, employee)
 		return
 	}
-
-	createdEmployee, err := service.NewEmployeeOps(r.Context()).EmployeeCreate(newEmployee)
+	err = models.CreateEmployee(c, employee.Name, employee.Age, employee.Salary, employee.DepartmentID, employee.BranchID)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	} else {
+		c.JSON(http.StatusCreated, gin.H{"message": employee.Name + " created successfully"})
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, createdEmployee)
 }
 
-func EmployeeUpdateController(w http.ResponseWriter, r *http.Request) {
-
-	var newEmployeeData ent.Employee
-	err := json.NewDecoder(r.Body).Decode(&newEmployeeData)
+func UpdateEmployee(c *gin.Context) {
+	employeeIDStr := c.Param("id")
+	employeeID, err := strconv.Atoi(employeeIDStr)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid employee ID"})
 		return
 	}
-
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+	var employee struct {
+		Name         string  `json:"name"`
+		Age          int     `json:"age"`
+		Salary       float64 `json:"salary"`
+		DepartmentID int     `json:"department_id"`
+		BranchID     int     `json:"branch_id"`
+	}
+	err = c.BindJSON(&employee)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, employee)
 		return
 	}
-	newEmployeeData.ID = id
-
-	updatedEmployee, err := service.NewEmployeeOps(r.Context()).EmployeeUpdate(newEmployeeData)
+	err = models.UpdateEmployee(c, employeeID, employee.Name, employee.Age, employee.Salary, employee.DepartmentID, employee.BranchID)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": employeeIDStr + " updated successfully"})
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, updatedEmployee)
 }
 
-func EmployeeDeleteController(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+func DeleteEmployee(c *gin.Context) {
+	employeeIDStr := c.Param("id")
+	employeeID, err := strconv.Atoi(employeeIDStr)
 	if err != nil {
-		utils.Return(w, false, http.StatusBadRequest, err, nil)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid employee ID"})
 		return
 	}
-
-	deletedID, err := service.NewEmployeeOps(r.Context()).EmployeeDelete(id)
+	err = models.DeleteEmployee(c, employeeID)
 	if err != nil {
-		utils.Return(w, false, http.StatusInternalServerError, err, nil)
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": employeeIDStr + " deleted successfully"})
 	}
-
-	utils.Return(w, true, http.StatusOK, nil, deletedID)
 }
