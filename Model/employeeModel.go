@@ -8,16 +8,12 @@ import (
 	"time"
 )
 
-func GetEmployee(ctx context.Context, id int) (emp *ent.Employee, err error) {
-	emp, err = config.Client.Employee.Query().
-		WithDepartment().
-		WithBranch().
-		Where(employee.ID(id)).
-		Only(ctx)
+func GetEmployees(ctx context.Context) (employees []*ent.Employee, err error) {
+	employees, err = config.Client.Employee.Query().WithDepartment().WithBranch().All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return emp, nil
+	return employees, nil
 }
 
 func CreateEmployee(ctx context.Context, name string, age int, salary float64, departmentID, branchID int) (err error) {
@@ -35,6 +31,18 @@ func CreateEmployee(ctx context.Context, name string, age int, salary float64, d
 		return err
 	}
 	return nil
+}
+
+func GetEmployee(ctx context.Context, id int) (emp *ent.Employee, err error) {
+	emp, err = config.Client.Employee.Query().
+		WithDepartment().
+		WithBranch().
+		Where(employee.ID(id)).
+		Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return emp, nil
 }
 
 func UpdateEmployee(ctx context.Context, id int, name string, age int, salary float64, departmentID, branchID int) (err error) {

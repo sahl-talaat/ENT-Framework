@@ -9,19 +9,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetBranch(c *gin.Context) {
-	branchIDStr := c.Param("id")
-	branchID, err := strconv.Atoi(branchIDStr)
+func GetBranches(c *gin.Context) {
+	brances, err := models.GetBranches(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid branch ID"})
-		return
-	}
-	branch, err := models.GetBranch(c, branchID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	} else {
-		c.JSON(http.StatusOK, branch)
+		c.JSON(http.StatusOK, brances)
 	}
 }
 
@@ -38,6 +32,22 @@ func CreateBranch(c *gin.Context) {
 		return
 	} else {
 		c.JSON(http.StatusCreated, gin.H{"message": branch.Name + " created successfully"})
+	}
+}
+
+func GetBranch(c *gin.Context) {
+	branchIDStr := c.Param("id")
+	branchID, err := strconv.Atoi(branchIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid branch ID"})
+		return
+	}
+	branch, err := models.GetBranch(c, branchID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	} else {
+		c.JSON(http.StatusOK, branch)
 	}
 }
 

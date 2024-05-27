@@ -9,19 +9,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetDepartment(c *gin.Context) {
-	departmentIDStr := c.Param("id")
-	departmentID, err := strconv.Atoi(departmentIDStr)
+func GetDepartments(c *gin.Context) {
+	departments, err := models.GetDepartments(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid department ID"})
-		return
-	}
-	department, err := models.GetDepartment(c, departmentID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, err.Error())
+		c.JSON(http.StatusNotFound, err.Error)
 		return
 	} else {
-		c.JSON(http.StatusOK, department)
+		c.JSON(http.StatusOK, departments)
 	}
 }
 
@@ -38,6 +32,22 @@ func CreateDepartment(c *gin.Context) {
 		return
 	} else {
 		c.JSON(http.StatusCreated, gin.H{"message": department.Name + " created successfully"})
+	}
+}
+
+func GetDepartment(c *gin.Context) {
+	departmentIDStr := c.Param("id")
+	departmentID, err := strconv.Atoi(departmentIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid department ID"})
+		return
+	}
+	department, err := models.GetDepartment(c, departmentID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, err.Error())
+		return
+	} else {
+		c.JSON(http.StatusOK, department)
 	}
 }
 
