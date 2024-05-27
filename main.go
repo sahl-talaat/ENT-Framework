@@ -4,7 +4,6 @@ import (
 	config "entdemo/Config"
 	router "entdemo/Router"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -27,6 +26,9 @@ func main() {
 	defer config.Client.Close()
 
 	app := gin.Default()
+	app.GET("", func(c *gin.Context) {
+		c.File("public/index.html")
+	})
 	router.RegisterRouter(app)
 
 	port := os.Getenv("SERVER_PORT")
@@ -34,8 +36,8 @@ func main() {
 		port = "8090"
 	}
 
-	log.Printf("server listening on port %s", port)
-	if err := http.ListenAndServe(":"+port, app); err != nil {
+	if err := app.Run(":" + port); err != nil {
 		log.Fatalf("Error starting server: %v", err)
+
 	}
 }

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENT API</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .content { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">ENT API</h1>
+        <nav class="nav nav-pills nav-justified my-4">
+            <a class="nav-link" href="#" data-target="#employees">Employees</a>
+            <a class="nav-link" href="#" data-target="#departments">Departments</a>
+            <a class="nav-link" href="#" data-target="#branches">Branches</a>
+            <a class="nav-link" href="#" data-target="#products">Products</a>
+        </nav>
+
+        <!-- Employees Section -->
+        <div id="employees" class="content">
+            <h2>Employees</h2>
+            <div id="employeeList"></div>
+            <h3>Create Employee</h3>
+            <form id="createEmployeeForm">
+                <div class="form-group">
+                    <label for="employeeName">Name</label>
+                    <input type="text" class="form-control" id="employeeName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeAge">Age</label>
+                    <input type="number" class="form-control" id="employeeAge" name="age" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeSalary">Salary</label>
+                    <input type="number" class="form-control" id="employeeSalary" name="salary" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeDepartmentId">Department ID</label>
+                    <input type="number" class="form-control" id="employeeDepartmentId" name="department_id" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeBranchId">Branch ID</label>
+                    <input type="number" class="form-control" id="employeeBranchId" name="branch_id" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Employee</button>
+            </form>
+        </div>
+
+        <!-- Departments Section -->
+        <div id="departments" class="content">
+            <h2>Departments</h2>
+            <div id="departmentList"></div>
+            <h3>Create Department</h3>
+            <form id="createDepartmentForm">
+                <div class="form-group">
+                    <label for="departmentName">Name</label>
+                    <input type="text" class="form-control" id="departmentName" name="name" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Department</button>
+            </form>
+        </div>
+
+        <!-- Branches Section -->
+        <div id="branches" class="content">
+            <h2>Branches</h2>
+            <div id="branchList"></div>
+            <h3>Create Branch</h3>
+            <form id="createBranchForm">
+                <div class="form-group">
+                    <label for="branchName">Name</label>
+                    <input type="text" class="form-control" id="branchName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="branchAddress">Address</label>
+                    <input type="text" class="form-control" id="branchAddress" name="address" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Branch</button>
+            </form>
+        </div>
+
+        <!-- Products Section -->
+        <div id="products" class="content">
+            <h2>Products</h2>
+            <div id="productList"></div>
+            <h3>Create Product</h3>
+            <form id="createProductForm">
+                <div class="form-group">
+                    <label for="productName">Name</label>
+                    <input type="text" class="form-control" id="productName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Price</label>
+                    <input type="number" class="form-control" id="productPrice" name="price" step="0.01" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Product</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = link.getAttribute('data-target');
+                    document.querySelectorAll('.content').forEach(div => div.style.display = 'none');
+                    document.querySelector(target).style.display = 'block';
+                });
+            });
+
+            document.querySelector('.nav-link').click(); // Display the first section by default
+
+            async function fetchData(url, elementId) {
+                const response = await fetch(url);
+                const data = await response.json();
+                document.getElementById(elementId).innerHTML = JSON.stringify(data, null, 2);
+            }
+
+            async function postData(url, formData) {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(Object.fromEntries(formData.entries()))
+                });
+                return response.json();
+            }
+
+            document.getElementById('createEmployeeForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                await postData('http://localhost:8090/api/v1/employees', formData);
+                fetchData('http://localhost:8090/api/v1/employees', 'employeeList');
+            });
+
+            document.getElementById('createDepartmentForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                await postData('http://localhost:8090/api/v1/departments', formData);
+                fetchData('http://localhost:8090/api/v1/departments', 'departmentList');
+            });
+
+            document.getElementById('createBranchForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                await postData('http://localhost:8090/api/v1/branches', formData);
+                fetchData('http://localhost:8090/api/v1/branches', 'branchList');
+            });
+
+            document.getElementById('createProductForm').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                await postData('http://localhost:8090/api/v1/products', formData);
+                fetchData('http://localhost:8090/api/v1/products', 'productList');
+            });
+
+            // Initial data fetch
+            fetchData('http://localhost:8090/api/v1/employees', 'employeeList');
+            fetchData('http://localhost:8090/api/v1/departments', 'departmentList');
+            fetchData('http://localhost:8090/api/v1/branches', 'branchList');
+            fetchData('http://localhost:8090/api/v1/products', 'productList');
+        });
+    </script>
+</body>
+</html>
