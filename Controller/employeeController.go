@@ -8,19 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetEmployee(c *gin.Context) {
-	employeeIDStr := c.Param("id")
-	employeeID, err := strconv.Atoi(employeeIDStr)
+func GetEmployees(c *gin.Context) {
+	employees, err := models.GetEmployees(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid employee ID"})
-		return
-	}
-	employee, err := models.GetEmployee(c, employeeID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, err.Error())
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	} else {
-		c.JSON(http.StatusOK, employee)
+		c.JSON(http.StatusOK, employees)
 	}
 }
 
@@ -44,6 +38,22 @@ func CreateEmployee(c *gin.Context) {
 		return
 	} else {
 		c.JSON(http.StatusCreated, gin.H{"message": employee.Name + " created successfully"})
+	}
+}
+
+func GetEmployee(c *gin.Context) {
+	employeeIDStr := c.Param("id")
+	employeeID, err := strconv.Atoi(employeeIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid employee ID"})
+		return
+	}
+	employee, err := models.GetEmployee(c, employeeID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, err.Error())
+		return
+	} else {
+		c.JSON(http.StatusOK, employee)
 	}
 }
 

@@ -45,15 +45,3 @@ func DeleteProduct(ctx context.Context, id int) (err error) {
 	}
 	return nil
 }
-
-/*
-	 func ProductsGetAll() ([]*ent.Product, error) {
-
-		products, err := config.Client.Product.Query().All(s.ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		return products, nil
-	}
-*/

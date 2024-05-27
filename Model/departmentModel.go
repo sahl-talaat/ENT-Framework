@@ -6,12 +6,12 @@ import (
 	"entdemo/ent"
 )
 
-func GetDepartment(ctx context.Context, id int) (department *ent.Department, err error) {
-	department, err = config.Client.Department.Get(ctx, id)
+func GetDepartments(ctx context.Context) (departments []*ent.Department, err error) {
+	departments, err = config.Client.Department.Query().All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return department, nil
+	return departments, nil
 }
 
 func CreateDepartment(ctx context.Context, department *ent.Department) (err error) {
@@ -23,6 +23,14 @@ func CreateDepartment(ctx context.Context, department *ent.Department) (err erro
 		return err
 	}
 	return nil
+}
+
+func GetDepartment(ctx context.Context, id int) (department *ent.Department, err error) {
+	department, err = config.Client.Department.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return department, nil
 }
 
 func UpdateDepartment(ctx context.Context, department *ent.Department, id int) (err error) {

@@ -6,6 +6,14 @@ import (
 	"entdemo/ent"
 )
 
+func GetBranches(ctx context.Context) (brances []*ent.Branch, err error) {
+	brances, err = config.Client.Branch.Query().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return brances, nil
+}
+
 func GetBranch(ctx context.Context, id int) (branch *ent.Branch, err error) {
 	branch, err = config.Client.Branch.Get(ctx, id)
 	if err != nil {
