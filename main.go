@@ -1,14 +1,12 @@
 package main
 
 import (
-	config "entdemo/Config"
-	router "entdemo/Router"
 	"log"
-	"net/http"
+	config "myapp/Config"
+	routes "myapp/Router"
 	"os"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 )
 
@@ -24,18 +22,20 @@ func main() {
 		log.Fatalf("Could not initialize database: %v", err)
 	}
 
-	defer config.Client.Close()
-
 	app := gin.Default()
-	router.RegisterRouter(app)
+	app.GET("", func(c *gin.Context) {
+		c.File("public/index.html")
+	})
+	routes.RegisterRouter(app)
 
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
 		port = "8090"
 	}
 
-	log.Printf("server listening on port %s", port)
-	if err := http.ListenAndServe(":"+port, app); err != nil {
+	err = app.Run(":" + port)
+	if err != nil {
 		log.Fatalf("Error starting server: %v", err)
+
 	}
 }

@@ -1,7 +1,7 @@
-package controller
+package controllers
 
 import (
-	models "entdemo/Model"
+	models "myapp/Model"
 	"net/http"
 	"strconv"
 

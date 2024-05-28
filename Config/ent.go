@@ -1,8 +1,8 @@
 package config
 
 import (
-	"entdemo/ent"
 	"fmt"
+	"myapp/ent"
 	"os"
 	"time"
 

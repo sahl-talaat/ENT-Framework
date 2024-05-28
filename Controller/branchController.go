@@ -1,12 +1,12 @@
-package controller
+package controllers
 
 import (
-	models "entdemo/Model"
-	"entdemo/ent"
+	models "myapp/Model"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"myapp/ent"
 )
 
 func GetBranches(c *gin.Context) {
