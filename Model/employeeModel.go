@@ -2,9 +2,9 @@ package models
 
 import (
 	"context"
-	config "entdemo/Config"
-	"entdemo/ent"
-	"entdemo/ent/employee"
+	config "myapp/Config"
+	"myapp/ent"
+	"myapp/ent/employee"
 	"time"
 )
 

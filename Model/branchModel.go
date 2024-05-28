@@ -2,8 +2,9 @@ package models
 
 import (
 	"context"
-	config "entdemo/Config"
-	"entdemo/ent"
+	config "myapp/Config"
+
+	"myapp/ent"
 )
 
 func GetBranches(ctx context.Context) (brances []*ent.Branch, err error) {

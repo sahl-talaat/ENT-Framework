@@ -2,8 +2,9 @@ package models
 
 import (
 	"context"
-	config "entdemo/Config"
-	"entdemo/ent"
+	config "myapp/Config"
+
+	"myapp/ent"
 )
 
 func GetDepartments(ctx context.Context) (departments []*ent.Department, err error) {
@@ -51,13 +52,3 @@ func DeleteDepartment(ctx context.Context, id int) (err error) {
 	}
 	return nil
 }
-
-/* func DepartmentsGetAll() ([]*ent.Department, error) {
-
-	users, err := r.client.Department.Query().All(r.ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return users, nil
-} */

@@ -2,16 +2,16 @@ package models
 
 import (
 	"context"
-	config "entdemo/Config"
-	"entdemo/ent"
+	config "myapp/Config"
+	"myapp/ent"
 )
 
-func GetProduct(ctx context.Context /* product *ent.Product, */, id int) (product *ent.Product, err error) {
-	product, err = config.Client.Product.Get(ctx, id)
+func GetProducts(ctx context.Context) (products []*ent.Product, err error) {
+	products, err = config.Client.Product.Query().All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return product, nil
+	return products, nil
 }
 
 func CreateProduct(ctx context.Context, product *ent.Product) (err error) {
@@ -24,6 +24,14 @@ func CreateProduct(ctx context.Context, product *ent.Product) (err error) {
 		return err
 	}
 	return nil
+}
+
+func GetProduct(ctx context.Context /* product *ent.Product, */, id int) (product *ent.Product, err error) {
+	product, err = config.Client.Product.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return product, nil
 }
 
 func UpdateProduct(ctx context.Context, product *ent.Product, id int) (err error) {

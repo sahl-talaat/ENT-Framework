@@ -26,7 +26,5 @@ func (Branch) Fields() []ent.Field {
 func (Branch) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("employees", Employee.Type),
-		edge.To("orders", Order.Type),
-		edge.To("sales", Sale.Type),
 	}
 }
